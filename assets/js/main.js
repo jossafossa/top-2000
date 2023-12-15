@@ -2,7 +2,7 @@ import Renderer from "./Renderer.js";
 import Sorter from "./Sorter.js";
 import Sanitizer from "./Sanitizer.js";
 import Statistics from "./Statistics.js";
-import Spotify from "./Spotify.js";
+// import Spotify from "./Spotify.js";
 import SortListener from "./SortListener.js";
 import ListSwitcher from "./ListSwitcher.js";
 
@@ -13,7 +13,7 @@ class Top2000Filter {
     this.sorter = new Sorter();
     this.sanitizer = new Sanitizer();
     this.statistics = new Statistics();
-    this.spotify = new Spotify();
+    // this.spotify = new Spotify();
 
     this.filters = {
       sort: [
@@ -67,7 +67,7 @@ class Top2000Filter {
 
     this.renderer.on("song-click", (item) => {
       let { artist, track } = item;
-      this.Spotify.getSong(artist, track);
+      // this.Spotify.getSong(artist, track);
     });
   }
 
@@ -106,7 +106,7 @@ class Top2000Filter {
   }
 
   async play(item) {
-    let song = await this.spotify.getSong(item.artist, item.track);
+    // let song = await this.spotify.getSong(item.artist, item.track);
     console.log(song);
   }
 
