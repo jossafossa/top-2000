@@ -1,35 +1,18 @@
 export default class Statistics {
-  sortBy(list, allItems = []) {
-    list.sort((a, b) => {
-      for (let items of allItems) {
-        let order;
-        if (!Array.isArray(items)) items = [items];
+  sortBy(list, keys, asc = true) {
+    return list.sort((a, b) => {
+      for (const key of keys) {
+        const aValue = Array.isArray(a[key]) ? a[key].length : a[key];
+        const bValue = Array.isArray(b[key]) ? b[key].length : b[key];
 
-        let hasArray = items.map((e) => Array.isArray(e));
-        hasArray = hasArray.includes(true);
-
-        if (hasArray) {
-          for (let item of items) {
-            order = b[item].length - a[item].length;
-          }
-        } else {
-          let composedA = [];
-          let composedB = [];
-          for (let item of items) {
-            composedA.push(a[item]);
-            composedB.push(b[item]);
-          }
-          composedA = composedA.join(" - ");
-          composedB = composedB.join(" - ");
-          order = composedA > composedB ? -1 : 1;
-        }
-        if (order !== 0) return order;
+        if (aValue < bValue) return -1;
+        if (aValue > bValue) return 1;
       }
+      return 0;
     });
-    return list;
   }
 
-  groupBy(list, keys) {
+  groupBy(list, keys, keyFn = (e) => e) {
     keys = keys?.length ? keys : [keys];
     let newList = [];
     for (let item of list) {
@@ -38,7 +21,7 @@ export default class Statistics {
         newKeys.push(item[key] || "other");
       }
 
-      let newKey = newKeys.join(" - ");
+      let newKey = keyFn(newKeys.join(" - "));
       newList[newKey] = newList?.[newKey] || [];
       newList[newKey].push(item);
     }
@@ -56,6 +39,22 @@ export default class Statistics {
   getAveragePosition(list) {
     let total = list.reduce((a, i) => (a += i.position), 0);
     return total / list.length;
+  }
+
+  sanitizeSongKey(key) {
+    // remov everything between ()
+    key = key.replace(/\(.*\)/g, "");
+
+    // replace & with en
+    key = key.replace(/&/g, "en");
+
+    // remove punctuation
+    key = key.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\?]/g, "");
+
+    // lowercase
+    key = key.toLowerCase().trim();
+
+    return key;
   }
 
   getList(list) {
@@ -79,20 +78,24 @@ export default class Statistics {
       list.reduce((a, e) => (a += e.position), 0) / list.length;
 
     return {
-      test: "asdasd",
       averagePosition,
     };
   }
 
   getSongs(list) {
-    let songs = this.groupBy(list, ["artist", "title"]);
-    songs = this.sortBy(songs, ["entries", "key"]);
+    let songs = this.groupBy(list, ["artist", "title"], (e) =>
+      this.sanitizeSongKey(e)
+    );
+    // songs = this.sortBy(songs, ["entries", "key"]);
     for (let song of songs) {
       let songStats = this.getSong(song.entries);
       for (let [key, stat] of Object.entries(songStats)) {
         song[key] = stat;
       }
     }
+
+    songs = this.sortBy(songs, ["averagePosition", "count"]);
+
     return songs;
   }
 
@@ -106,10 +109,25 @@ export default class Statistics {
     }
 
     let songs = this.getSongs(all);
+    let allList = songs.map((e, index) => {
+      let firstEntry = e.entries[0];
+      let position = index + 1;
+      return {
+        ...firstEntry,
+        averagePosition: e.averagePosition,
+        position,
+        change: 0,
+        previousPosition: position,
+        changeLabel: Math.floor(e.averagePosition),
+        new: false,
+        entries: e.entries,
+      };
+    });
 
     return {
       years,
       songs,
+      all: allList,
     };
   }
 }

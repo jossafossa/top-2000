@@ -65,11 +65,8 @@ export default class Renderer extends EventHandler {
 		</li>
 		`;
     let element = this.getElement(html);
-    this.setupItemEvents(element);
     return element;
   }
-
-  setupItemEvents() {}
 
   getItems(list) {
     let elements = list.map((item) => {
@@ -110,13 +107,26 @@ export default class Renderer extends EventHandler {
   }
 
   getYearSelector(lists, year) {
+    let yearSelect = this.getSelect("data-year", lists, year);
+    let previousSelect = this.getSelect(
+      "data-previous",
+      {
+        ...lists,
+        previous: null,
+      },
+      "previous"
+    );
+    return [yearSelect, previousSelect];
+  }
+
+  getSelect(key, lists, year = false) {
     let years = Object.keys(lists);
     years = years.map((name) => {
       let selected = year == name ? "selected" : "";
       return `<option value='${name}' ${selected}>${name}</option> `;
     });
     return this.getElement(`
-			<select data-year>
+			<select ${key}>
 				${years.join("")}
 			</select>
 		`);

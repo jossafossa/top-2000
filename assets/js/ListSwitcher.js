@@ -3,14 +3,18 @@ import EventHandler from "./EventHandler.js";
 export default class ListSwitcher extends EventHandler {
   constructor(element) {
     super();
-    this.switchers = element.querySelectorAll("[data-year]");
-    for (let year of this.switchers) {
-      year.addEventListener("change", (e) => this.switch(year));
-    }
+    this.year = element.querySelector("[data-year]");
+    this.previous = element.querySelector("[data-previous]");
+    [this.year, this.previous].forEach((e) => this.addListeners(e));
   }
 
-  switch(year) {
-    let value = year.value;
-    this.emit("switch", value);
+  addListeners(element) {
+    element.addEventListener("change", (e) => this.switch(e));
+  }
+
+  switch() {
+    let year = this.year.value;
+    let previous = this.previous.value;
+    this.emit("switch", [year, previous]);
   }
 }

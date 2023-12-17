@@ -41,7 +41,8 @@ class Top2000Filter {
     this.sortOrder = false;
     this.activeList = Object.keys(this.lists).sort().at(-1);
     let stats = this.statistics.getAll(this.lists);
-    console.log(this.activeList);
+    this.lists["all"] = stats.all;
+    console.log(stats);
 
     // render
     this.renderBase(root);
@@ -60,9 +61,14 @@ class Top2000Filter {
     });
 
     this.listSwitcher = new ListSwitcher(yearSelectorRoot);
-    this.listSwitcher.on("switch", (year) => {
+    this.listSwitcher.on("switch", ([year, compareYear]) => {
       this.activeList = year;
-      this.renderList(this.activeList, this.getList());
+      this.renderList(
+        this.activeList,
+        this.getList(),
+        compareYear,
+        this.getList(compareYear)
+      );
     });
 
     this.renderer.on("song-click", (item) => {
@@ -73,7 +79,7 @@ class Top2000Filter {
 
   getList(year = false) {
     year = year || this.activeList;
-    return this.lists[year];
+    return this.lists[year] ?? false;
   }
 
   renderBase(root) {
@@ -85,23 +91,30 @@ class Top2000Filter {
     root.append(this.filterRoot, this.listWrapper);
   }
 
-  renderList(year, list = false) {
+  renderList(year, list = false, compareYear = false, compare = false) {
+    console.log({ year, list, compareYear, compare });
     if (list === false) list = this.getList();
 
     if (this.sortType) {
       list = this.sorter.sortBy(list, [this.sortType], this.sortOrder);
     }
-    if (year === this.renderedList) {
+    if (year === this.renderedList && compare === this.comparedList) {
       let ids = list.map((e) => e.position);
       this.reorderListCSS(this.listRoot, ids);
       // this.reorderListHTML(this.listRoot, ids);
       return this.listRoot;
     }
 
-    let items = this.renderer.getList(list);
+    if (compare !== false) {
+      list = this.sanitizer.compare(list, compare);
+    }
+
+    let items = this.renderer.getList(list, compare);
     this.setupEvents(items, list);
+    this.listRoot.innerHTML = "";
     this.listRoot.append(...items);
     this.renderedList = year;
+    this.comparedList = compareYear;
     return this.listRoot;
   }
 
@@ -151,7 +164,7 @@ class Top2000Filter {
 
   renderYearSelection(lists, year) {
     let html = this.renderer.getYearSelector(lists, year);
-    this.filterRoot.append(html);
+    this.filterRoot.append(...html);
     return this.filterRoot;
   }
 }
@@ -163,27 +176,27 @@ let years = {
   2023: "https://www.nporadio2.nl/api/charts/top-2000-van-2023-12-25",
   2022: "https://www.nporadio2.nl/api/charts/top-2000-van-2022-12-25",
   2021: "https://www.nporadio2.nl/api/charts/top-2000-van-2021-12-25",
-  // 2020: "https://www.nporadio2.nl/api/charts/top-2000-van-2020-12-25",
-  // 2019: "https://www.nporadio2.nl/api/charts/top-2000-van-2019-12-25",
-  // 2018: "https://www.nporadio2.nl/api/charts/top-2000-van-2018-12-25",
-  // 2017: "https://www.nporadio2.nl/api/charts/top-2000-van-2017-12-25",
-  // 2016: "https://www.nporadio2.nl/api/charts/top-2000-van-2016-12-25",
-  // 2015: "https://www.nporadio2.nl/api/charts/top-2000-van-2015-12-25",
-  // 2014: "https://www.nporadio2.nl/api/charts/top-2000-van-2014-12-25",
-  // 2013: "https://www.nporadio2.nl/api/charts/top-2000-van-2013-12-25",
-  // 2012: "https://www.nporadio2.nl/api/charts/top-2000-van-2012-12-25",
-  // 2011: "https://www.nporadio2.nl/api/charts/top-2000-van-2011-12-25",
-  // 2010: "https://www.nporadio2.nl/api/charts/top-2000-van-2010-12-25",
-  // 2009: "https://www.nporadio2.nl/api/charts/top-2000-van-2009-12-25",
-  // 2008: "https://www.nporadio2.nl/api/charts/top-2000-van-2008-12-25",
-  // 2007: "https://www.nporadio2.nl/api/charts/top-2000-van-2007-12-25",
-  // 2006: "https://www.nporadio2.nl/api/charts/top-2000-van-2006-12-25",
-  // 2005: "https://www.nporadio2.nl/api/charts/top-2000-van-2005-12-25",
-  // 2004: "https://www.nporadio2.nl/api/charts/top-2000-van-2004-12-25",
-  // 2003: "https://www.nporadio2.nl/api/charts/top-2000-van-2003-12-25",
-  // 2002: "https://www.nporadio2.nl/api/charts/top-2000-van-2002-12-25",
-  // 2001: "https://www.nporadio2.nl/api/charts/top-2000-van-2001-12-25",
-  // 2000: "https://www.nporadio2.nl/api/charts/top-2000-van-2000-12-25",
+  2020: "https://www.nporadio2.nl/api/charts/top-2000-van-2020-12-25",
+  2019: "https://www.nporadio2.nl/api/charts/top-2000-van-2019-12-25",
+  2018: "https://www.nporadio2.nl/api/charts/top-2000-van-2018-12-25",
+  2017: "https://www.nporadio2.nl/api/charts/top-2000-van-2017-12-25",
+  2016: "https://www.nporadio2.nl/api/charts/top-2000-van-2016-12-25",
+  2015: "https://www.nporadio2.nl/api/charts/top-2000-van-2015-12-25",
+  2014: "https://www.nporadio2.nl/api/charts/top-2000-van-2014-12-25",
+  2013: "https://www.nporadio2.nl/api/charts/top-2000-van-2013-12-25",
+  2012: "https://www.nporadio2.nl/api/charts/top-2000-van-2012-12-25",
+  2011: "https://www.nporadio2.nl/api/charts/top-2000-van-2011-12-25",
+  2010: "https://www.nporadio2.nl/api/charts/top-2000-van-2010-12-25",
+  2009: "https://www.nporadio2.nl/api/charts/top-2000-van-2009-12-25",
+  2008: "https://www.nporadio2.nl/api/charts/top-2000-van-2008-12-25",
+  2007: "https://www.nporadio2.nl/api/charts/top-2000-van-2007-12-25",
+  2006: "https://www.nporadio2.nl/api/charts/top-2000-van-2006-12-25",
+  2005: "https://www.nporadio2.nl/api/charts/top-2000-van-2005-12-25",
+  2004: "https://www.nporadio2.nl/api/charts/top-2000-van-2004-12-25",
+  2003: "https://www.nporadio2.nl/api/charts/top-2000-van-2003-12-25",
+  2002: "https://www.nporadio2.nl/api/charts/top-2000-van-2002-12-25",
+  2001: "https://www.nporadio2.nl/api/charts/top-2000-van-2001-12-25",
+  2000: "https://www.nporadio2.nl/api/charts/top-2000-van-2000-12-25",
 };
 
 // fetch a year

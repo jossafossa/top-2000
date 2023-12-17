@@ -26,6 +26,7 @@ export default class Sanitizer {
       position: position.current,
       previousPosition: previous,
       new: isNew,
+      year,
       change: change,
       changeLabel: changeLabel,
       artist: track.artist,
@@ -47,5 +48,25 @@ export default class Sanitizer {
         return [key, this.sanitizeList(key, value)];
       })
     );
+  }
+
+  /**
+   * Takes the list and compares the current position of each enty with the previous position.
+   * @param {*} list
+   * @param {*} olderList
+   */
+  compare(list = [], olderList = []) {
+    let newList = list.map((item) => {
+      let olderItem = olderList.find((e) => e.id === item.id);
+      if (olderItem) {
+        item.previousPosition = olderItem.position;
+        item.change = olderItem.position - item.position;
+        item.changeLabel = item.change > 0 ? `+${item.change}` : item.change;
+        item.changeLabel = item.change === 0 ? `—` : item.changeLabel;
+        item.new = olderItem.position === 0;
+      }
+      return item;
+    });
+    return newList;
   }
 }
