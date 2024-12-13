@@ -176,14 +176,14 @@ class Top2000Filter {
 
 const getYears = (start, end) => {
   const years = [];
-  for (let i = start; i <= end; i++) {
-    years.push(i);
+  for (let year = start; year <= end; i++) {
+    years.push(`https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`);
   }
-
-  return years.map((year) => `https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`);
+  return years;
 }
 
 let years = getYears();
+console.log({years});
 
 // fetch a year
 const fetchYear = async (url) => {
