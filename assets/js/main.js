@@ -182,7 +182,7 @@ const getYears = (start, end) => {
   return years;
 }
 
-let years = getYears();
+let years = getYears(2000, new Date().getFullYear());
 console.log({years});
 
 // fetch a year
