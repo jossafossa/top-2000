@@ -242,7 +242,7 @@ const fetchYears = async (years) => {
   let data = await fetchYears(years);
 
   // initialize the app
-  let root = document.querySelector("#app");
+  let root = document.querySelector(".root");
   new Top2000Filter(root, data);
 
   // hide the loader
