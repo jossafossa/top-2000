@@ -176,7 +176,7 @@ class Top2000Filter {
 
 const getYears = (start, end) => {
   const years = [];
-  for (let year = start; year <= end; i++) {
+  for (let year = start; year <= end; year++) {
     years.push(`https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`);
   }
   return years;
