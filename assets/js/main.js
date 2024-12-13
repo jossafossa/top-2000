@@ -172,32 +172,18 @@ class Top2000Filter {
 // -------------------------------------
 // BOOSTRAP
 // -------------------------------------
-let years = {
-  2023: "https://www.nporadio2.nl/api/charts/top-2000-van-2023-12-25",
-  2022: "https://www.nporadio2.nl/api/charts/top-2000-van-2022-12-25",
-  2021: "https://www.nporadio2.nl/api/charts/top-2000-van-2021-12-25",
-  2020: "https://www.nporadio2.nl/api/charts/top-2000-van-2020-12-25",
-  2019: "https://www.nporadio2.nl/api/charts/top-2000-van-2019-12-25",
-  2018: "https://www.nporadio2.nl/api/charts/top-2000-van-2018-12-25",
-  2017: "https://www.nporadio2.nl/api/charts/top-2000-van-2017-12-25",
-  2016: "https://www.nporadio2.nl/api/charts/top-2000-van-2016-12-25",
-  2015: "https://www.nporadio2.nl/api/charts/top-2000-van-2015-12-25",
-  2014: "https://www.nporadio2.nl/api/charts/top-2000-van-2014-12-25",
-  2013: "https://www.nporadio2.nl/api/charts/top-2000-van-2013-12-25",
-  2012: "https://www.nporadio2.nl/api/charts/top-2000-van-2012-12-25",
-  2011: "https://www.nporadio2.nl/api/charts/top-2000-van-2011-12-25",
-  2010: "https://www.nporadio2.nl/api/charts/top-2000-van-2010-12-25",
-  2009: "https://www.nporadio2.nl/api/charts/top-2000-van-2009-12-25",
-  2008: "https://www.nporadio2.nl/api/charts/top-2000-van-2008-12-25",
-  2007: "https://www.nporadio2.nl/api/charts/top-2000-van-2007-12-25",
-  2006: "https://www.nporadio2.nl/api/charts/top-2000-van-2006-12-25",
-  2005: "https://www.nporadio2.nl/api/charts/top-2000-van-2005-12-25",
-  2004: "https://www.nporadio2.nl/api/charts/top-2000-van-2004-12-25",
-  2003: "https://www.nporadio2.nl/api/charts/top-2000-van-2003-12-25",
-  2002: "https://www.nporadio2.nl/api/charts/top-2000-van-2002-12-25",
-  2001: "https://www.nporadio2.nl/api/charts/top-2000-van-2001-12-25",
-  2000: "https://www.nporadio2.nl/api/charts/top-2000-van-2000-12-25",
-};
+
+
+const getYears = (start, end) => {
+  const years = [];
+  for (let i = start; i <= end; i++) {
+    years.push(i);
+  }
+
+  return years.map((year) => `https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`);
+}
+
+let years = getYears();
 
 // fetch a year
 const fetchYear = async (url) => {
