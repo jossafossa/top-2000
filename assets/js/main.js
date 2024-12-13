@@ -177,7 +177,7 @@ class Top2000Filter {
 const getYears = (start, end) => {
   const years = {};
   for (let year = start; year <= end; year++) {
-    years[year] = `https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`;
+    years[year] = [`https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`, `https://www.nporadio2.nl/api/charts/npo-radio-2-top-2000-van-${year}-12-25`];
   }
   return years;
 }
@@ -205,15 +205,17 @@ const fetchYear = async (url) => {
 // fetch a list of years
 const fetchYears = async (years) => {
   let yearsData = await Promise.all(
-    Object.entries(years).map(async ([year, url]) => {
-      // fetch from url
-      let data = await fetchYear(url);
+    Object.entries(years).map(async ([year, urls]) => {
+      for(let url of urls) {
+        // fetch from url
+        let data = await fetchYear(url);
 
-      // bail early with a falsy when no positions are found
-      if (data?.positions === undefined) return false;
+        // bail early with a falsy when no positions are found
+        if (data?.positions === undefined) return false;
 
-      // return the yeardata as an entry
-      return [year, data.positions];
+        // return the yeardata as an entry
+        return [year, data.positions];
+      }
     })
   );
 
