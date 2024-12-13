@@ -175,15 +175,17 @@ class Top2000Filter {
 
 
 const getYears = (start, end) => {
-  const years = [];
+  const years = {};
   for (let year = start; year <= end; year++) {
-    years.push(`https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`);
+    years[year] = `https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`;
   }
   return years;
 }
 
-let years = getYears(2000, new Date().getFullYear());
-console.log({years});
+const now = new Date();
+const currentYear = now.getFullYear();
+const isAfter1212 = now.getMonth() === 11 && now.getDate() >= 12;
+let years = getYears(2000, isAfter1212 ? currentYear : currentYear - 1);
 
 // fetch a year
 const fetchYear = async (url) => {
