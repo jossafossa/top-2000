@@ -1,3 +1,5 @@
+import "./main.scss";
+
 import Renderer from "./Renderer.js";
 import Sorter from "./Sorter.js";
 import Sanitizer from "./Sanitizer.js";
@@ -173,19 +175,26 @@ class Top2000Filter {
 // BOOSTRAP
 // -------------------------------------
 
+const getURL = (year)=> {
+  if (year < 2024) return `https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`;
+  return `https://www.nporadio2.nl/api/charts/npo-radio-2-top-2000-van-${year}-12-25`;
+}
 
 const getYears = (start, end) => {
   const years = {};
   for (let year = start; year <= end; year++) {
-    years[year] = [`https://www.nporadio2.nl/api/charts/top-2000-van-${year}-12-25`, `https://www.nporadio2.nl/api/charts/npo-radio-2-top-2000-van-${year}-12-25`];
+    years[year] = getURL(year);
   }
   return years;
 }
+
 
 const now = new Date();
 const currentYear = now.getFullYear();
 const isAfter1212 = now.getMonth() === 11 && now.getDate() >= 12;
 let years = getYears(2000, isAfter1212 ? currentYear : currentYear - 1);
+
+console.log({years});
 
 // fetch a year
 const fetchYear = async (url) => {
@@ -205,17 +214,15 @@ const fetchYear = async (url) => {
 // fetch a list of years
 const fetchYears = async (years) => {
   let yearsData = await Promise.all(
-    Object.entries(years).map(async ([year, urls]) => {
-      for(let url of urls) {
-        // fetch from url
-        let data = await fetchYear(url);
+    Object.entries(years).map(async ([year, url]) => {
+      // fetch from url
+      let data = await fetchYear(url);
 
-        // bail early with a falsy when no positions are found
-        if (data?.positions === undefined) return false;
+      // bail early with a falsy when no positions are found
+      if (data?.positions === undefined) return false;
 
-        // return the yeardata as an entry
-        return [year, data.positions];
-      }
+      // return the yeardata as an entry
+      return [year, data.positions];
     })
   );
 
@@ -235,7 +242,7 @@ const fetchYears = async (years) => {
   let data = await fetchYears(years);
 
   // initialize the app
-  let root = document.querySelector(".root");
+  let root = document.querySelector("#app");
   new Top2000Filter(root, data);
 
   // hide the loader
